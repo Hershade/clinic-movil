@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
-import 'screens/home_screen.dart';
+import 'screens/auth/auth_gate.dart';
 
 void main() {
   runApp(const ClinicApp());
@@ -15,7 +15,7 @@ class ClinicApp extends StatelessWidget {
       title: 'Clinic App',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const HomeScreen(),
+      home: const AuthGate(),
     );
   }
 }
