@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../services/auth_service.dart';
+import 'auth/login_screen.dart';
 import 'doctors/doctors_list_screen.dart';
 import 'patients/patients_list_screen.dart';
 import 'appointments/appointments_list_screen.dart';
@@ -6,11 +9,33 @@ import 'appointments/appointments_list_screen.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  Future<void> _logout(BuildContext context) async {
+    final authService = AuthService();
+    await authService.logout();
+
+    if (!context.mounted) return;
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const LoginScreen(),
+      ),
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Clínica App'),
+        actions: [
+          IconButton(
+            onPressed: () => _logout(context),
+            icon: const Icon(Icons.logout),
+            tooltip: 'Cerrar sesión',
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
