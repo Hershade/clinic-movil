@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../screens/home_screen.dart';
 import '../../services/auth_service.dart';
+import '../../services/fcm_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -34,12 +35,19 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text.trim(),
       );
 
+      try{
+        final fcmService = FcmService();
+        await fcmService.syncTokenToBackend();
+      } catch (e) {
+        debugPrint('Error sincronizando token FCM: $e');
+      }
+
       if (!mounted) return;
 
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
+          builder: (_) => HomeScreen(),
         ),
       );
     } catch (e) {
