@@ -1,16 +1,90 @@
 import 'package:flutter/material.dart';
+
+import '../services/auth_service.dart';
+import 'auth/login_screen.dart';
 import 'doctors/doctors_list_screen.dart';
 import 'patients/patients_list_screen.dart';
 import 'appointments/appointments_list_screen.dart';
+import '../services/notification_service.dart';
+import 'notifications/notifications_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  HomeScreen({super.key});
+  
+  final NotificationService _notificationService = NotificationService();
+  
+  Future<void> _logout(BuildContext context) async {
+    final authService = AuthService();
+    await authService.logout();
+
+    if (!context.mounted) return;
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Clínica App'),
+        actions: [
+          ValueListenableBuilder<int>(
+            valueListenable: _notificationService.unreadCount,
+            builder: (context, count, _) {
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const NotificationsScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.notifications),
+                    tooltip: 'Notificaciones',
+                  ),
+                  if (count > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 18,
+                          minHeight: 18,
+                        ),
+                        child: Text(
+                          '$count',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+          IconButton(
+            onPressed: () => _logout(context),
+            icon: const Icon(Icons.logout),
+            tooltip: 'Cerrar sesión',
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -27,9 +101,7 @@ class HomeScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const DoctorsListScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const DoctorsListScreen()),
               );
             },
           ),
@@ -40,9 +112,7 @@ class HomeScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const PatientsListScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const PatientsListScreen()),
               );
             },
           ),
