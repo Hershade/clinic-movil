@@ -256,6 +256,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         label = 'Pendiente';
         break;
     }
+
     // Devuelve el contenedor con forma de píldora redondeada
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

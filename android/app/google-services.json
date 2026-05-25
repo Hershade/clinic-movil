@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "982457552345",
+    "project_id": "clinic-notifications-153e3",
+    "storage_bucket": "clinic-notifications-153e3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:982457552345:android:5abe8141e4e3c5ed0eddc8",
+        "android_client_info": {
+          "package_name": "com.example.clinic_movil"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyog_NWuPP8ke1IQfdQk1kL9xxtMWaPb0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
