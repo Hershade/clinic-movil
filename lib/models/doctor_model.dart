@@ -25,4 +25,14 @@ class DoctorModel {
       activo: json['activo'] ?? false,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'nombre': nombre,
+      'specialidad': especialidad,
+      'telefono': telefono,
+      'correo': correo,
+      'activo': activo,
+    };
+  }
 }
