@@ -25,7 +25,7 @@ class AuthGate extends StatelessWidget {
         final hasSession = snapshot.data ?? false;
 
         if (hasSession) {
-          return const HomeScreen();
+          return HomeScreen();
         }
 
         return const LoginScreen();
