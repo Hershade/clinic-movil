@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
+/// Clase que agrupa los temas personalizados de la aplicación.
+///
+/// Actualmente define solo el tema claro `lightTheme`.
 class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
+      // Activa Material 3 para usar la nueva estética y componentes.
       useMaterial3: true,
+      // Color de fondo principal para la mayoría de pantallas (Scaffold).
       scaffoldBackgroundColor: AppColors.background,
+      // Genera una paleta de colores basada en un color semilla.
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
         primary: AppColors.primary,
@@ -13,12 +19,14 @@ class AppTheme {
         error: AppColors.error,
         surface: AppColors.surface,
       ),
+      // Configuración de apariencia global para AppBar.
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         centerTitle: true,
         elevation: 0,
       ),
+      // Estilo predeterminado para widgets Card.
       cardTheme: CardThemeData(
         color: AppColors.surface,
         elevation: 2,
@@ -27,6 +35,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(14),
         ),
       ),
+      // Tema para campos de texto y decoraciones de entrada.
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
@@ -47,6 +56,7 @@ class AppTheme {
           ),
         ),
       ),
+      // Estilos de texto globales para la app.
       textTheme: const TextTheme(
         titleLarge: TextStyle(
           color: AppColors.textPrimary,
@@ -59,6 +69,7 @@ class AppTheme {
           color: AppColors.textSecondary,
         ),
       ),
+      // Estilo para botones elevados (ElevatedButton).
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
