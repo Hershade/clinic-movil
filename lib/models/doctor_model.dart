@@ -16,8 +16,9 @@ class DoctorModel {
   });
 
   factory DoctorModel.fromJson(Map<String, dynamic> json) {
-    dynamic rawId = json['id'];
+    final rawId = json['id'];
     int parsedId;
+
     if (rawId is int) {
       parsedId = rawId;
     } else if (rawId is String) {
@@ -29,7 +30,7 @@ class DoctorModel {
     return DoctorModel(
       id: parsedId,
       nombre: json['nombre'] ?? '',
-      especialidad: json['specialidad'] ?? '', // error tipografico en la API por lo que en este caso debemos usar specialidad
+      especialidad: json['especialidad'] ?? '',
       telefono: json['telefono'] ?? '',
       correo: json['correo'] ?? '',
       activo: json['activo'] ?? false,
@@ -39,17 +40,18 @@ class DoctorModel {
   Map<String, dynamic> toJson() {
     return {
       'nombre': nombre,
-      'specialidad': especialidad,
+      'especialidad': especialidad,
       'telefono': telefono,
       'correo': correo,
-      'activo': activo,
     };
   }
-  
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is DoctorModel && runtimeType == other.runtimeType && id == other.id;
+      other is DoctorModel &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
 
   @override
   int get hashCode => id.hashCode;
