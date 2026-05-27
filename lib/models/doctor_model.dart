@@ -36,6 +36,16 @@ class DoctorModel {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'nombre': nombre,
+      'specialidad': especialidad,
+      'telefono': telefono,
+      'correo': correo,
+      'activo': activo,
+    };
+  }
+  
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
