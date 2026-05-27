@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../models/app_notification_model.dart';
-import '../../services/notification_service.dart';
 import 'package:intl/intl.dart';
+
+import '../../models/app_notification_model.dart';
+import '../../models/appointment_model.dart';
+import '../../services/notification_service.dart';
+import '../appointments/appointment_detail_screen.dart';
+import '../appointments/appointment_provider.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -12,42 +16,50 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   final NotificationService _notificationService = NotificationService();
+  final AppointmentProvider _appointmentProvider = AppointmentProvider();
 
-  void _showNotificationDetail(AppNotificationModel item, int index) {
+  Future<void> _goToAppointment(AppNotificationModel item, int index) async {
+    final rawId = item.data['appointment_id'];
+    final appointmentId = int.tryParse(rawId?.toString() ?? '');
+
+    if (appointmentId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No se encontró el ID de la cita'),
+        ),
+      );
+      return;
+    }
+
     _notificationService.markAsRead(index);
 
-    final fecha = DateFormat('dd/MM/yyyy HH:mm').format(item.receivedAt);
+    try {
+      final AppointmentModel appointment =
+          await _appointmentProvider.fetchAppointmentById(appointmentId);
 
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(item.title),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(item.body),
-            const SizedBox(height: 12),
-            Text('ID cita: ${item.data['appointment_id'] ?? 'N/A'}'),
-            Text('Paciente: ${item.data['patient_name'] ?? 'N/A'}'),
-            Text('Doctor: ${item.data['doctor_name'] ?? 'N/A'}'),
-            Text('Motivo: ${item.data['motivo'] ?? 'N/A'}'),
-            // Text('Tipo: ${item.data['type'] ?? 'N/A'}'),
-            const SizedBox(height: 12),
-            Text(
-              'Recibida: $fecha',
-              style: const TextStyle(fontSize: 12),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
+      if (!mounted) return;
+
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => AppointmentDetailScreen(
+            provider: _appointmentProvider,
+            appointmentId: appointmentId,
+            initialAppointment: appointment,
           ),
-        ],
-      ),
-    );
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Error al abrir la cita: ${e.toString().replaceFirst('Exception: ', '')}',
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -75,6 +87,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           }
 
           return ListView.builder(
+            padding: const EdgeInsets.all(12),
             itemCount: notifications.length,
             itemBuilder: (context, index) {
               final item = notifications[index];
@@ -99,8 +112,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       ),
                     ],
                   ),
+                  trailing: TextButton(
+                    onPressed: () => _goToAppointment(item, index),
+                    child: const Text('Ver cita'),
+                  ),
                   isThreeLine: true,
-                  onTap: () => _showNotificationDetail(item, index),
                 ),
               );
             },
