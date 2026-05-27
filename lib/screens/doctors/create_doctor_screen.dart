@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../core/theme/app_colors.dart';
 import '../../models/doctor_model.dart';
 import '../../services/doctor_service.dart';
 
@@ -13,54 +12,89 @@ class CreateDoctorScreen extends StatefulWidget {
 
 class _CreateDoctorScreenState extends State<CreateDoctorScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _specialtyController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _emailController = TextEditingController();
-  bool _activo = true;
-  bool _isSubmitting = false;
+
+  final _nombreController = TextEditingController();
+  final _especialidadController = TextEditingController();
+  final _telefonoController = TextEditingController();
+  final _correoController = TextEditingController();
+
   final DoctorService _doctorService = DoctorService();
+
+  bool _isLoading = false;
+  bool _activo = true;
+
+  Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
+
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final DoctorModel doctor = await _doctorService.createDoctor(
+        nombre: _nombreController.text.trim(),
+        especialidad: _especialidadController.text.trim(),
+        telefono: _telefonoController.text.trim(),
+        correo: _correoController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Doctor creado correctamente'),
+        ),
+      );
+
+      Navigator.pop(context, doctor);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString().replaceFirst('Exception: ', ''),
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _specialtyController.dispose();
-    _phoneController.dispose();
-    _emailController.dispose();
+    _nombreController.dispose();
+    _especialidadController.dispose();
+    _telefonoController.dispose();
+    _correoController.dispose();
     super.dispose();
   }
 
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
+  String? _requiredValidator(String? value, String label) {
+    if (value == null || value.trim().isEmpty) {
+      return 'El campo $label es obligatorio';
+    }
+    return null;
+  }
+
+  String? _emailValidator(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'El correo es obligatorio';
     }
 
-    setState(() {
-      _isSubmitting = true;
-    });
-
-    final doctor = DoctorModel(
-      id: 0,
-      nombre: _nameController.text.trim(),
-      especialidad: _specialtyController.text.trim(),
-      telefono: _phoneController.text.trim(),
-      correo: _emailController.text.trim(),
-      activo: _activo,
-    );
-
-    try {
-      await _doctorService.createDoctor(doctor);
-      if (!mounted) return;
-      Navigator.of(context).pop(true);
-    } catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _isSubmitting = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No se pudo crear el doctor: $error')),
-      );
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+    if (!emailRegex.hasMatch(value.trim())) {
+      return 'Correo inválido';
     }
+
+    return null;
   }
 
   @override
@@ -71,82 +105,81 @@ class _CreateDoctorScreenState extends State<CreateDoctorScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Nombre'),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Ingrese el nombre del doctor';
-                  }
-                  return null;
-                },
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _nombreController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre',
+                      prefixIcon: Icon(Icons.person_outline),
+                    ),
+                    validator: (value) => _requiredValidator(value, 'nombre'),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _especialidadController,
+                    decoration: const InputDecoration(
+                      labelText: 'Especialidad',
+                      prefixIcon: Icon(Icons.medical_services_outlined),
+                    ),
+                    validator: (value) =>
+                        _requiredValidator(value, 'especialidad'),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _telefonoController,
+                    decoration: const InputDecoration(
+                      labelText: 'Teléfono',
+                      prefixIcon: Icon(Icons.phone_outlined),
+                    ),
+                    validator: (value) => _requiredValidator(value, 'teléfono'),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _correoController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(
+                      labelText: 'Correo',
+                      prefixIcon: Icon(Icons.email_outlined),
+                    ),
+                    validator: _emailValidator,
+                  ),
+                  const SizedBox(height: 16),
+                  SwitchListTile(
+                    value: _activo,
+                    onChanged: (value) {
+                      setState(() {
+                        _activo = value;
+                      });
+                    },
+                    title: const Text('Activo'),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _submit,
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 22,
+                              width: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('Guardar doctor'),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _specialtyController,
-                decoration: const InputDecoration(labelText: 'Especialidad'),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Ingrese la especialidad';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _phoneController,
-                keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(labelText: 'Teléfono'),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Ingrese el teléfono';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(labelText: 'Correo'),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Ingrese el correo';
-                  }
-                  if (!RegExp(r"^[^@\s]+@[^@\s]+\.[^@\s]+").hasMatch(value.trim())) {
-                    return 'Ingrese un correo válido';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-              SwitchListTile(
-                title: const Text('Activo'),
-                value: _activo,
-                activeThumbColor: AppColors.primary,
-                onChanged: (value) {
-                  setState(() {
-                    _activo = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _isSubmitting ? null : _submit,
-                child: _isSubmitting
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Guardar doctor'),
-              ),
-            ],
+            ),
           ),
         ),
       ),
