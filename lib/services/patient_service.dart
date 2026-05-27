@@ -18,4 +18,17 @@ class PatientService {
       throw Exception('No se pudieron cargar los pacientes');
     }
   }
+
+  Future<PatientModel> getPatientById(int id) async {
+    final response = await _apiService.get('/patients/$id');
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      return PatientModel.fromJson(data);
+    } else if (response.statusCode == 401) {
+      throw Exception('Acceso no autorizado. Por favor inicia sesión de nuevo.');
+    } else {
+      throw Exception('No se pudo cargar el paciente');
+    }
+  }
 }
