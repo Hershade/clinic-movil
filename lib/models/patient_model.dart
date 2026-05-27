@@ -18,7 +18,7 @@ class PatientModel {
   });
 
   factory PatientModel.fromJson(Map<String, dynamic> json) {
-    dynamic rawId = json['id'];
+    final rawId = json['id'];
     int parsedId;
 
     if (rawId is int) {
@@ -42,13 +42,11 @@ class PatientModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'nombre': nombre,
       'dpi': dpi,
       'telefono': telefono,
       'correo': correo,
       'fecha_nacimiento': fechaNacimiento,
-      'activo': activo,
     };
   }
 

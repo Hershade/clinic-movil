@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/patient_model.dart';
 import '../../services/patient_service.dart';
+import 'create_patient_screen.dart';
 
 class PatientsListScreen extends StatefulWidget {
   const PatientsListScreen({super.key});
@@ -41,6 +42,19 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
     await _patientsFuture;
   }
 
+  Future<void> _goToCreatePatient() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const CreatePatientScreen(),
+      ),
+    );
+
+    if (result != null) {
+      await _reloadPatients();
+    }
+  }
+
   void _showPatientDetail(PatientModel patient) {
     showDialog(
       context: context,
@@ -75,6 +89,13 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pacientes'),
+        actions: [
+          IconButton(
+            onPressed: _goToCreatePatient,
+            icon: const Icon(Icons.add),
+            tooltip: 'Crear paciente',
+          ),
+        ],
       ),
       body: FutureBuilder<List<PatientModel>>(
         future: _patientsFuture,
@@ -116,8 +137,16 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
           final patients = snapshot.data ?? [];
 
           if (patients.isEmpty) {
-            return const Center(
-              child: Text('No hay pacientes registrados'),
+            return RefreshIndicator(
+              onRefresh: _reloadPatients,
+              child: ListView(
+                children: const [
+                  SizedBox(height: 120),
+                  Center(
+                    child: Text('No hay pacientes registrados'),
+                  ),
+                ],
+              ),
             );
           }
 
@@ -170,6 +199,11 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
           );
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _goToCreatePatient,
+        tooltip: 'Crear paciente',
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
@@ -210,9 +244,7 @@ class PatientBST {
   }
 
   void _inOrder(PatientNode? node, List<PatientModel> patients) {
-    if (node == null) {
-      return;
-    }
+    if (node == null) return;
 
     _inOrder(node.left, patients);
     patients.add(node.patient);
