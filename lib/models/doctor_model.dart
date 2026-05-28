@@ -27,13 +27,16 @@ class DoctorModel {
       parsedId = 0;
     }
 
+    final especialidad =
+        (json['especialidad'] ?? json['specialidad'] ?? '').toString();
+
     return DoctorModel(
       id: parsedId,
-      nombre: json['nombre'] ?? '',
-      especialidad: json['especialidad'] ?? '',
-      telefono: json['telefono'] ?? '',
-      correo: json['correo'] ?? '',
-      activo: json['activo'] ?? false,
+      nombre: json['nombre']?.toString() ?? '',
+      especialidad: especialidad,
+      telefono: json['telefono']?.toString() ?? '',
+      correo: json['correo']?.toString() ?? '',
+      activo: json['activo'] is bool ? json['activo'] as bool : false,
     );
   }
 

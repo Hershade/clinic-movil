@@ -14,7 +14,7 @@ void main() {
       );
 
       expect(doctor.toJson(), containsPair('especialidad', 'Cardiología'));
-      expect(doctor.toJson(), containsPair('specialidad', 'Cardiología'));
+      expect(doctor.toJson(), isNot(contains('specialidad')));
     });
 
     test('fromJson acepta el nombre legacy specialidad para compatibilidad', () {
@@ -28,6 +28,19 @@ void main() {
       });
 
       expect(doctor.especialidad, 'Dermatología');
+    });
+
+    test('fromJson acepta especialidad con el nombre actual', () {
+      final doctor = DoctorModel.fromJson({
+        'id': 8,
+        'nombre': 'Dr. Actual',
+        'especialidad': 'Pediatría',
+        'telefono': '5550000',
+        'correo': 'actual@test.com',
+        'activo': true,
+      });
+
+      expect(doctor.especialidad, 'Pediatría');
     });
   });
 }
