@@ -16,17 +16,6 @@ class DoctorModel {
   });
 
   factory DoctorModel.fromJson(Map<String, dynamic> json) {
-<<<<<<< Updated upstream
-    return DoctorModel(
-      id: json['id'],
-      nombre: json['nombre'] ?? '',
-      especialidad: json['specialidad'] ?? '', // error tipografico en la API por lo que en este caso debemos usar specialidad
-      telefono: json['telefono'] ?? '',
-      correo: json['correo'] ?? '',
-      activo: json['activo'] ?? false,
-    );
-  }
-=======
     final rawId = json['id'];
     int parsedId;
 
@@ -38,7 +27,8 @@ class DoctorModel {
       parsedId = 0;
     }
 
-    final especialidad = (json['specialidad'] ?? json['especialidad'] ?? '').toString();
+    final especialidad =
+        (json['especialidad'] ?? json['specialidad'] ?? '').toString();
 
     return DoctorModel(
       id: parsedId,
@@ -53,10 +43,9 @@ class DoctorModel {
   Map<String, dynamic> toJson() {
     return {
       'nombre': nombre,
-      'specialidad': especialidad,
+      'especialidad': especialidad,
       'telefono': telefono,
       'correo': correo,
-      'activo': activo,
     };
   }
 
@@ -69,5 +58,4 @@ class DoctorModel {
 
   @override
   int get hashCode => id.hashCode;
->>>>>>> Stashed changes
 }
